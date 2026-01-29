@@ -4,10 +4,14 @@ const API = axios.create({
     baseURL: "http://localhost:3001/api",
 });
 
-export function signup(username, password) {
-    return API.post("/signup", { username, password });
-}
+export const signup = (username, password) =>
+    API.post("/signup", { username, password });
 
-export function login(username, password) {
-    return API.post("/login", { username, password });
-}
+export const login = (username, password) =>
+    API.post("/login", { username, password });
+
+export const uploadPublicKey = (username, publicKey) =>
+    API.post("/public-key", { username, publicKey });
+
+export const getPublicKey = (username) =>
+    API.get(`/public-key/${username}`);
