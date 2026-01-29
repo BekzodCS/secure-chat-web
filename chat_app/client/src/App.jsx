@@ -1,12 +1,19 @@
 import { useState, useEffect } from "react";
-import { signup, login, uploadPublicKey, getPublicKey } from "./api";
+import {
+  signup,
+  login,
+  uploadPublicKey,
+  getPublicKey
+} from "./api";
 import { socket } from "./socket";
 import {
   generateKeyPair,
   exportPublicKey,
   importPublicKey,
   encryptMessage,
-  decryptMessage
+  decryptMessage,
+  encryptPrivateKey,
+  decryptPrivateKey
 } from "./crypto";
 
 function App() {
@@ -15,17 +22,20 @@ function App() {
   const [partner, setPartner] = useState("");
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const [keys, setKeys] = useState(null);
+  const [privateKey, setPrivateKey] = useState(null);
 
   // Receive messages
   useEffect(() => {
     socket.on("receive-message", async (payload) => {
-      if (payload.to !== username || !keys) return;
+      if (payload.to !== username || !privateKey) return;
 
-      const text = await decryptMessage(payload.ciphertext, keys.privateKey);
+      const text = await decryptMessage(
+        payload.ciphertext,
+        privateKey
+      );
       setMessages(prev => [...prev, `${payload.from}: ${text}`]);
     });
-  }, [keys, username]);
+  }, [privateKey, username]);
 
   const handleSignup = async () => {
     await signup(username, password);
@@ -35,17 +45,41 @@ function App() {
   const handleLogin = async () => {
     await login(username, password);
 
-    const keyPair = await generateKeyPair();
-    setKeys(keyPair);
+    let encryptedData = localStorage.getItem("encryptedPrivateKey");
 
-    const publicKey = await exportPublicKey(keyPair.publicKey);
-    await uploadPublicKey(username, publicKey);
+    let privKey;
+    if (encryptedData) {
+      // Existing user → decrypt stored key
+      privKey = await decryptPrivateKey(
+        JSON.parse(encryptedData),
+        password
+      );
+    } else {
+      // First login → generate keys
+      const keyPair = await generateKeyPair();
 
-    alert("Logged in & keys generated");
+      const exportedPub = await exportPublicKey(keyPair.publicKey);
+      await uploadPublicKey(username, exportedPub);
+
+      const encrypted = await encryptPrivateKey(
+        keyPair.privateKey,
+        password
+      );
+
+      localStorage.setItem(
+        "encryptedPrivateKey",
+        JSON.stringify(encrypted)
+      );
+
+      privKey = keyPair.privateKey;
+    }
+
+    setPrivateKey(privKey);
+    alert("Logged in securely");
   };
 
   const sendMessage = async () => {
-    if (!keys || !partner) return;
+    if (!privateKey || !partner) return;
 
     const res = await getPublicKey(partner);
     const partnerKey = await importPublicKey(res.data.publicKey);
@@ -66,7 +100,11 @@ function App() {
       <h2>Secure Chat (E2EE)</h2>
 
       <input placeholder="Username" onChange={e => setUsername(e.target.value)} />
-      <input placeholder="Password" type="password" onChange={e => setPassword(e.target.value)} />
+      <input
+        placeholder="Password"
+        type="password"
+        onChange={e => setPassword(e.target.value)}
+      />
 
       <br /><br />
       <button onClick={handleSignup}>Signup</button>
