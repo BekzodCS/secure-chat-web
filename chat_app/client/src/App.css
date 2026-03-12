@@ -11,9 +11,11 @@
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
@@ -22,6 +24,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -39,4 +42,74 @@
 
 .read-the-docs {
   color: #888;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f8;
+  margin: 0;
+}
+
+.container {
+  width: 400px;
+  margin: 60px auto;
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  text-align: center;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+button {
+  padding: 10px;
+  margin-right: 10px;
+  border: none;
+  border-radius: 6px;
+  background-color: #4a7cff;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #355fd1;
+}
+
+.chat-box {
+  height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 6px;
+  background: #fafafa;
+  margin-top: 10px;
+}
+
+.message {
+  background: #4a7cff;
+  color: white;
+  padding: 8px 10px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  max-width: 75%;
+}
+
+.partner {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.message:nth-child(even) {
+  background: #6c8cff;
 }
