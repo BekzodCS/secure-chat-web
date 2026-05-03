@@ -162,9 +162,14 @@ function App() {
 
     try {
       // Step 1: Login (token will be set as httpOnly cookie automatically)
+      let token;
       try {
-        await login(username.trim(), password);
-        setAuthToken(username.trim()); // Store username for reference
+        const res = await login(username.trim(), password);
+        token = res.data?.token;
+        if (token) {
+          localStorage.setItem("authToken", token);
+        }
+        setAuthToken(token || username.trim());
       } catch (err) {
         setError(err.response?.data?.error || "Login failed");
         setLoading(false);
@@ -213,8 +218,8 @@ function App() {
           localStorage.setItem("publicKey", pubKey);
         }
 
-        // Upload public key to server (token in cookie will be sent automatically)
-        await uploadPublicKey(username.trim(), pubKey);
+        // Upload public key to server (token in cookie will be sent automatically, or via header as fallback)
+        await uploadPublicKey(username.trim(), pubKey, token);
 
         setPrivateKey(privKey);
         setIsLoggedIn(true);
@@ -273,7 +278,7 @@ function App() {
 
     try {
       setLoading(true);
-      const res = await getPublicKey(trimmedPartner);
+      const res = await getPublicKey(trimmedPartner, authToken);
 
       const partnerKey = await importPublicKey(res.data.publicKey);
 

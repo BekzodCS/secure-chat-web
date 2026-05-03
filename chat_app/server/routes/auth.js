@@ -84,7 +84,8 @@ router.post("/login", async (req, res) => {
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
     });
 
-    return res.status(200).json({ message: "Login successful" });
+    // Also return token so frontend can use it as fallback
+    return res.status(200).json({ token, message: "Login successful" });
 });
 
 
