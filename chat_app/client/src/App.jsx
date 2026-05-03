@@ -196,7 +196,7 @@ function App() {
               throw new Error("Stored key mismatch - please reset");
             }
           } catch (err) {
-            setError(`Failed to decrypt stored key: ${err.message}`);
+            setError(`⚠️ Password mismatch: You must use the same password you signed up with. ${err.message}`);
             setLoading(false);
             return;
           }
